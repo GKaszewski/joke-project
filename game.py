@@ -5,64 +5,74 @@ Enjoy!
 """
 
 import pygame as py
+from engine import Player
 
 py.init()
+
+size  = (640, 480)
+screen = py.display.set_mode(size)
 
 x = 50
 y = 30
 velocity = 4
 jumpValue = 12
 
+playerSize = (80, 110)
+
+background = py.image.load('graphics/bg.png')
+character = Player(50, 30, 80, 110, 'graphics/character.png')
+
 deltaTime = 0
+
+def rendering():
+    screen.blit(background, (0, 0))
+    character.draw(screen)
+    py.display.flip()
+    py.display.update()
 
 def main():
     oldtime = 0
     global x, y, velocity, jumpValue, deltaTime
     oldtime = deltaTime
     hasGround = False
-    size  = (800, 600)
-    screen = py.display.set_mode(size)
     py.display.set_caption('Game 2D made because of my very boring life!')
     close = False
     clock = py.time.Clock()
+    clock.tick(60)
+   
     while not close: 
         for event in py.event.get():
             if event.type == py.QUIT:
                 close = True
 
         KEYS = py.key.get_pressed()
-
-        #gravity
-        y+= 10
+        
+        character.applyGravity()
 
         #simple collision checking & ground checking
-        if x >= (size[0] - 40):
-            x = size[0] - 40
-        elif x <= 0:
-            x = 0
-        if y <= 0:
-            y = 0
-        elif y >= (size[1] - 80):
-            y = size[1] - 80
-            hasGround = True
+        if character.x >= (size[0] - character.size[0]):
+            character.x = size[0] - character.size[0]
+        elif character.x <= 0:
+            character.x = 0
+        if character.y <= 0:
+            character.y = 0
+        elif character.y >= (size[1] - character.size[1]):
+            character.y = size[1] - character.size[1]
+            character.hasGround = True
         else:
-            hasGround = False
+            character.hasGround = False
         
         #movement
-        if KEYS[py.K_w] and hasGround:
-            y-= (jumpValue ** 2) * 0.5 
+        if KEYS[py.K_w] and character.hasGround:
+            character.y -= (character.jumpValue ** 2) * 0.5 
 
         if KEYS[py.K_a]:
-            x-= velocity
+            character.x -= character.velocity
 
         if KEYS[py.K_d]:
-            x+= velocity
+            character.x += character.velocity
 
-        screen.fill((255,255,255))
-        py.draw.rect(screen, (100, 0, 0), (x, y, 40, 80))
-        py.display.flip()
-        clock.tick(60)
-        py.display.update()
+        rendering()
     
     py.quit()
 
